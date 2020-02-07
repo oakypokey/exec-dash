@@ -7,6 +7,10 @@ OPTION C: use the os module to detect the names of all CSV files which exist in 
 then display this list to the user and prompt the user to input their selection.
 """
 
+
+def to_usd(my_price):
+    return "${0:,.2f}".format(my_price)  # > $12,000.71
+
 #Look at all of the different files in the directory, determine which are CSV, list them.
 fileNames = os.listdir(path=".")
 csvNames = []
@@ -33,7 +37,7 @@ while not selectedFileIndexInput.isdigit() or selectedFileIndex < 0 or selectedF
 
     if(selectedFileIndexInput.isdigit()):
         selectedFileIndex = int(selectedFileIndexInput)
-        if(selectedFileIndex > 0 and selectedFileIndex < len(csvNames)-1):
+        if(selectedFileIndex >= 0 and selectedFileIndex < len(csvNames)-1):
             break
         else:
             print("Please enter a valid digit.")
@@ -41,16 +45,35 @@ while not selectedFileIndexInput.isdigit() or selectedFileIndex < 0 or selectedF
         print("Please enter a valid digit.")
 
 #Take the index and create a pandas csv object
-selectedFile = pandas.read_csv(os.path.join(os.getcwd(), csvNames[selectedFileIndex]))
+selectedFile = pandas.read_csv(os.path.join(os.getcwd(), csvNames[selectedFileIndex]), parse_dates=['date'])
 
-#Printing the object for testing
-print(selectedFile)
+#Extract month and year from the first item in the CSV file
+MONTH = selectedFile['date'].tolist()[0].strftime("%B")
+YEAR = str(selectedFile['date'].tolist()[0].year)
 
-# print("-----------------------")
-# print("MONTH: March 2018")
+#Title
+print("-----------------------")
+print("REPORTING PERIOD: " + MONTH + " " + YEAR)
 
-# print("-----------------------")
-# print("CRUNCHING THE DATA...")
+#Total monthly sales
+print("Total Revenue: ", to_usd(selectedFile['sales price'].sum()))
+
+print("-----------------------")
+print("CRUNCHING THE DATA...")
+
+##Calculation
+print(selectedFile.groupby(['product']).sum().head())
+
+    #Chart[Stacked Bar Chart]
+
+#Determine Top 5 selling products overall
+    #Determine sale amount for each month
+    #Chart with top selling products of the entire period [Bar Chart]
+    #Plot each item as a line over the months [Line Graph]
+
+
+
+
 
 # print("-----------------------")
 # print("TOTAL MONTHLY SALES: $12,000.71")
